@@ -2,7 +2,9 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowRight, User } from "lucide-react";
+import { ArrowLeft, ArrowRight, LogOut, User } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 type HeaderProps = {
   sidebarOpen: boolean;
@@ -11,6 +13,17 @@ type HeaderProps = {
 
 export function Header({ sidebarOpen, setSidebarOpen }: HeaderProps) {
   const { toast } = useToast();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out."
+    });
+    navigate("/login");
+  };
 
   return (
     <header className="h-16 border-b border-border bg-background flex items-center justify-between px-4">
@@ -27,14 +40,19 @@ export function Header({ sidebarOpen, setSidebarOpen }: HeaderProps) {
         <Button 
           variant="outline" 
           size="sm"
-          className="flex items-center gap-2"
-          onClick={() => toast({
-            title: "Admin Profile",
-            description: "Profile functionality coming soon!"
-          })}
+          className="flex items-center gap-2 mr-2"
         >
           <User size={16} />
-          <span>Admin</span>
+          <span>{user?.email || "Admin"}</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleLogout}
+          className="flex items-center gap-2"
+        >
+          <LogOut size={16} />
+          <span className="hidden sm:inline">Logout</span>
         </Button>
       </div>
     </header>
