@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Lock, LogIn } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -22,6 +22,7 @@ export default function LoginPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -35,14 +36,10 @@ export default function LoginPage() {
     setIsLoading(true);
     
     try {
-      // Mock authentication for now
-      // In a real app, you'd call an authentication API here
-      console.log("Login attempt with:", data);
+      // Use the Auth context login function
+      const result = await login(data.email, data.password);
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      if (data.email === "admin@example.com" && data.password === "password123") {
+      if (result) {
         toast({
           title: "Success",
           description: "You have successfully logged in.",
