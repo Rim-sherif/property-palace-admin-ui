@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -183,6 +184,125 @@ const PropertiesPage = () => {
     }
   };
 
+  // Render card view
+  const renderCardView = () => (
+    <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+      {properties.map((property) => (
+        <Card key={property.id} className="overflow-hidden">
+          {property.imageUrl && (
+            <div className="aspect-[16/9] relative">
+              <img
+                src={property.imageUrl}
+                alt={property.title}
+                className="object-cover w-full h-full"
+              />
+              <span 
+                className={`absolute top-2 right-2 text-xs px-2 py-1 rounded-full ${getStatusColor(property.status)}`}
+              >
+                {property.status}
+              </span>
+            </div>
+          )}
+          <CardHeader>
+            <div className="flex justify-between items-start">
+              <CardTitle className="text-lg">{property.title}</CardTitle>
+              <Button
+                variant="destructive"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => removeProperty(property.id)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Building className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm">{property.projectName}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm">{property.address}</span>
+            </div>
+            <div className="flex gap-4 text-sm mt-2">
+              <div>
+                <span className="font-bold">{property.bedrooms}</span> Beds
+              </div>
+              <div>
+                <span className="font-bold">{property.bathrooms}</span> Baths
+              </div>
+              <div>
+                <span className="font-bold">{property.area}</span> sqft
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground line-clamp-2">
+              {property.description}
+            </p>
+          </CardContent>
+          <CardFooter className="border-t p-4">
+            <div className="text-lg font-bold">
+              ${property.price.toLocaleString()}
+            </div>
+          </CardFooter>
+        </Card>
+      ))}
+    </div>
+  );
+
+  // Render table view
+  const renderTableView = () => (
+    <div className="border rounded-md">
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="bg-muted">
+              <th className="text-left p-3">Property</th>
+              <th className="text-left p-3">Project</th>
+              <th className="text-left p-3">Type</th>
+              <th className="text-left p-3">Beds</th>
+              <th className="text-left p-3">Baths</th>
+              <th className="text-left p-3">Area</th>
+              <th className="text-left p-3">Price</th>
+              <th className="text-left p-3">Status</th>
+              <th className="text-left p-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {properties.map((property, index) => (
+              <tr key={property.id} className={index % 2 ? "bg-muted/30" : ""}>
+                <td className="p-3">
+                  <div className="font-medium">{property.title}</div>
+                </td>
+                <td className="p-3">{property.projectName}</td>
+                <td className="p-3">{property.propertyType}</td>
+                <td className="p-3">{property.bedrooms}</td>
+                <td className="p-3">{property.bathrooms}</td>
+                <td className="p-3">{property.area} sqft</td>
+                <td className="p-3">${property.price.toLocaleString()}</td>
+                <td className="p-3">
+                  <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(property.status)}`}>
+                    {property.status}
+                  </span>
+                </td>
+                <td className="p-3">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => removeProperty(property.id)}
+                  >
+                    <X className="h-3 w-3 mr-1" />
+                    Remove
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
   return (
     <AdminLayout>
       <PageHeader
@@ -195,7 +315,7 @@ const PropertiesPage = () => {
       />
 
       <div className="mb-6">
-        <Tabs value={view} onValueChange={(v) => setView(v as "cards" | "table")} className="w-[400px]">
+        <Tabs value={view} onValueChange={(v) => setView(v as "cards" | "table")}>
           <TabsList>
             <TabsTrigger value="cards" className="flex items-center gap-2">
               <Home className="h-4 w-4" />
@@ -206,130 +326,22 @@ const PropertiesPage = () => {
               Table View
             </TabsTrigger>
           </TabsList>
+          <TabsContent value="cards">
+            {renderCardView()}
+          </TabsContent>
+          <TabsContent value="table">
+            {renderTableView()}
+          </TabsContent>
         </Tabs>
       </div>
-
-      <TabsContent value="cards" className="mt-0">
-        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-          {properties.map((property) => (
-            <Card key={property.id} className="overflow-hidden">
-              {property.imageUrl && (
-                <div className="aspect-[16/9] relative">
-                  <img
-                    src={property.imageUrl}
-                    alt={property.title}
-                    className="object-cover w-full h-full"
-                  />
-                  <span 
-                    className={`absolute top-2 right-2 text-xs px-2 py-1 rounded-full ${getStatusColor(property.status)}`}
-                  >
-                    {property.status}
-                  </span>
-                </div>
-              )}
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-lg">{property.title}</CardTitle>
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => removeProperty(property.id)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Building className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{property.projectName}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{property.address}</span>
-                </div>
-                <div className="flex gap-4 text-sm mt-2">
-                  <div>
-                    <span className="font-bold">{property.bedrooms}</span> Beds
-                  </div>
-                  <div>
-                    <span className="font-bold">{property.bathrooms}</span> Baths
-                  </div>
-                  <div>
-                    <span className="font-bold">{property.area}</span> sqft
-                  </div>
-                </div>
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                  {property.description}
-                </p>
-              </CardContent>
-              <CardFooter className="border-t p-4">
-                <div className="text-lg font-bold">
-                  ${property.price.toLocaleString()}
-                </div>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      </TabsContent>
-
-      <TabsContent value="table" className="mt-0">
-        <div className="border rounded-md">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-muted">
-                  <th className="text-left p-3">Property</th>
-                  <th className="text-left p-3">Project</th>
-                  <th className="text-left p-3">Type</th>
-                  <th className="text-left p-3">Beds</th>
-                  <th className="text-left p-3">Baths</th>
-                  <th className="text-left p-3">Area</th>
-                  <th className="text-left p-3">Price</th>
-                  <th className="text-left p-3">Status</th>
-                  <th className="text-left p-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {properties.map((property, index) => (
-                  <tr key={property.id} className={index % 2 ? "bg-muted/30" : ""}>
-                    <td className="p-3">
-                      <div className="font-medium">{property.title}</div>
-                    </td>
-                    <td className="p-3">{property.projectName}</td>
-                    <td className="p-3">{property.propertyType}</td>
-                    <td className="p-3">{property.bedrooms}</td>
-                    <td className="p-3">{property.bathrooms}</td>
-                    <td className="p-3">{property.area} sqft</td>
-                    <td className="p-3">${property.price.toLocaleString()}</td>
-                    <td className="p-3">
-                      <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(property.status)}`}>
-                        {property.status}
-                      </span>
-                    </td>
-                    <td className="p-3">
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => removeProperty(property.id)}
-                      >
-                        <X className="h-3 w-3 mr-1" />
-                        Remove
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </TabsContent>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Add New Property</DialogTitle>
+            <DialogDescription>
+              Fill in the details to add a new property to your listings
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="space-y-4 py-2">
